@@ -1,0 +1,114 @@
+sources:
+    local:
+        type: GeoJSON
+        url: map.geojson
+    nextzen:
+        type: MVT
+        url: https://tile.nextzen.org/tilezen/vector/v1/512/all/{z}/{x}/{y}.mvt
+        url_params:
+                api_key: Y-we2PskQ2eil_68prPjqQ
+        tile_size: 512
+        max_zoom: 16
+    sondas:
+         type: GeoJSON
+         url: sondajes.geojson
+
+layers:
+      sondajes:
+           data: {source: local, layer: sondajes}
+
+      positions:
+            data: {source: local, layer: positions}
+            draw:
+                points:
+                   order: 1
+                   color: [0.71, 0.098, 0.125]
+                   size: function() {return 30 - (20 - $zoom)}
+                text:
+                    font:
+                         family: Open Sans
+                         style: italic
+                         size: 50px
+                         fill: [0.772, 0.557, 0.098]
+
+
+      earth:
+              data: { source: nextzen, layer: earth }
+              draw:
+                  polygons:
+                      order: function() { return feature.sort_rank; }
+                      color: [0.175, 0.175, 0.175]
+
+      landuse:
+              data: { source: nextzen, layer: landuse }
+              draw:
+                  polygons:
+                      order: function() { return feature.sort_rank; }
+                      color: [0.5, 0.875, 0.5]
+
+      water:
+              data: { source: nextzen, layer: water }
+              draw:
+                  polygons:
+                      order: function() { return feature.sort_rank; }
+                      color: [0.5, 0.5, 0.875]
+              outline:
+                  # only show outlines at z14 or higher
+                  filter: function () { return (feature.kind != 'ocean' && feature.kind != 'riverbank') && $zoom >= 14; }
+                  draw:
+                      lines:
+                          order: function() { return feature.sort_rank; }
+                          color: [0.6, 0.6, 0.975]
+                          width: function() {return (2.5 * Math.log($zoom));}
+
+      roads:
+              data: { source: nextzen, layer: roads }
+              filter:
+                  - is_tunnel: no
+                  - not: { kind: [ferry] }
+              draw:
+                  lines:
+                      order: function() { return feature.sort_rank; }
+                      color: [0.8, .8, .8]
+                      width: 8
+              highway:
+                  filter: { kind: highway }
+                  draw:
+                      lines:
+                          width: 10
+                          outline:
+                              color: [0.2, 0.2, 0.2]
+                              width: 3
+              major_road:
+                  filter: { kind: major_road }
+                  draw:
+                      lines:
+                          width: 8
+                          outline:
+                              width: 1
+              minor_road:
+                  filter: { kind: minor_road }
+                  draw:
+                      lines:
+                          width: 5
+                          outline:
+                              width: 1
+              path:
+                  filter: { kind: path }
+                  draw:
+                      lines:
+                          width: 6
+                          outline:
+                              width: 1
+              rail:
+                  filter: { kind: rail }
+
+      buildings:
+              data: { source: nextzen, layer: buildings }
+              draw:
+                  polygons:
+                      # make sure buildings are on top of all the separated road layers
+                      order: function() { return feature.sort_rank || 1000; }
+                      color: [.5, .5, .5]
+                      # at z15, only extrude buildings at least 20 m tall; at z16 and higher, extrude everything
+                      extrude: function () { return (($zoom >= 15 && feature.height > 20) || $zoom >= 16) }
