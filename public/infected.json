@@ -1,0 +1,14 @@
+{
+  "places":[
+    {"place":"Lima","infected":"70"},
+    {"place":"Lambayeque","infected":"3"},
+    {"place":"Callao","infected":"3"},
+    {"place":"Piura","infected":"2"},
+    {"place":"Huanuco","infected":"2"},
+    {"place":"Arequipa","infected":"2"},
+    {"place":"La Libertad","infected":"1"},
+    {"place":"Ica","infected":"1"},
+    {"place":"Cusco","infected":"1"},
+    {"place":"Ancash","infected":"1"}
+  ]
+}
